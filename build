@@ -1,0 +1,35 @@
+#!/bin/bash
+
+ASSETS_DIR="assets"
+BUILD_DIR="gen"
+BIN_DIR="bin"
+EXECUTABLE="One"
+
+if [ ! -d $BUILD_DIR ]; then
+    mkdir $BUILD_DIR
+fi
+
+cd $BUILD_DIR
+
+cmake ..
+make
+
+cd ../
+
+if [ -d $BIN_DIR ]; then
+    rm -r $BIN_DIR
+fi
+
+mkdir $BIN_DIR
+
+# prepare binaries in bin dir
+
+mv $BUILD_DIR/One $BIN_DIR
+cp -r $ASSETS_DIR $BIN_DIR
+
+# package the binary
+
+mv $BIN_DIR $EXECUTABLE
+zip -r ${EXECUTABLE}.zip $EXECUTABLE
+mv $EXECUTABLE $BIN_DIR
+mv ${EXECUTABLE}.zip $BIN_DIR
