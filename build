@@ -1,5 +1,11 @@
 #!/bin/bash
 
+BUILD_TYPE=$1 # First argument
+
+if [ ! $BUILD_TYPE ]; then
+    BUILD_TYPE="Debug"
+fi
+
 ASSETS_DIR="assets"
 BUILD_DIR="gen"
 BIN_DIR="bin"
@@ -11,7 +17,7 @@ fi
 
 cd $BUILD_DIR
 
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
 make
 
 cd ../

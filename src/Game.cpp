@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 
+#include "LevelState.h"
+
 namespace
 {
     const int TARGET_FPS = 60;
@@ -13,8 +15,6 @@ namespace
 one::Game::Game()
     : mRunning(false)
 {
-    playerX = 0;
-    playerY = 0;
 }
 
 one::Game::~Game()
@@ -31,6 +31,7 @@ void one::Game::Run()
     this->LoadContent(graphics);
 
     int lastMS = SDL_GetTicks();
+
 
     while (mRunning)
     {
@@ -49,43 +50,34 @@ void one::Game::Run()
 
         const int elapsedMS = SDL_GetTicks() - startMS;
 
-        if (deltaMS < TARGET_MS_PER_FRAME)
+        if (elapsedMS < TARGET_MS_PER_FRAME)
         {
-            std::cout << "Delaying: " << (TARGET_MS_PER_FRAME - elapsedMS) << std::endl;
             SDL_Delay(TARGET_MS_PER_FRAME - elapsedMS);
         }
-        std::cout << "-----------------------" << std::endl;
+
+        if (input.WasQuitEvent())
+        {
+            Quit();
+        }
     }
 }
 
 void one::Game::LoadContent(one::Graphics& graphics)
 {
-    graphics.LoadSpritesheet("test", "assets/sprites.png");
+    graphics.LoadSpritesheet("tiles", "assets/tiles.png");
+    SetState(new LevelState());
 }
 
 void one::Game::Update(int deltaMS, one::Input& input)
 {
-    std::cout << "Delta MS: " << deltaMS << std::endl;
-
-    if (input.IsKeyPressed(SDLK_UP))
-    {
-        std::cout << "Moving up" << std::endl;
-
-        playerY -= 1;
-    }
-    else if (input.IsKeyPressed(SDLK_DOWN))
-    {
-        std::cout << "Moving down" << std::endl;
-
-        playerY += 1;
-    }
+    mState->Update(deltaMS, input);
 }
 
 void one::Game::Draw(one::Graphics& graphics)
 {
     graphics.Clear();
 
-    graphics.DrawSprite("test", 28, playerX, playerY);
+    mState->Draw(graphics);
 
     graphics.Update();
 }

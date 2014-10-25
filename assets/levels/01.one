@@ -1,0 +1,10 @@
+word: 1 1 14
+word: 18 9 15
+hall: orange 10 4 0 14
+hall: blue 19 4 0 14
+entrance: orange 10 4
+entrance: blue 19 4
+exit: orange 10 16
+exit: blue 19 16
+tutorial: wasd 3 8
+tutorial: arrows 26 8

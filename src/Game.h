@@ -2,6 +2,7 @@
 
 #include "Graphics.h"
 #include "Input.h"
+#include "State.h"
 
 namespace one
 {
@@ -12,13 +13,18 @@ namespace one
             ~Game();
 
             void Run();
+            void Quit() { mRunning = false; }
+
+            static const unsigned int TILE_SIZE = 8;
+
+            void SetState(State* state) { mState = state; }
 
         private:
             void LoadContent(Graphics& graphics);
             void Update(int deltaMS, Input& input);
             void Draw(Graphics& graphics);
 
-            int playerX, playerY;
+            State* mState;
 
             bool mRunning;
     };
