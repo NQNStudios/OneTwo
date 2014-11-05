@@ -64,8 +64,6 @@ void one::Graphics::LoadSpritesheet(std::string key, const char* path)
 
 void one::Graphics::DrawSprite(std::string sheetKey, unsigned int tileIndex, int x, int y)
 {
-    std::cout << "Drawing tile " << tileIndex << " at (" << x << ", " << y << ")" <<  std::endl;
-
     SDL_Rect source;
     SDL_Rect dest;
 

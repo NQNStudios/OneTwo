@@ -32,7 +32,6 @@ void one::Game::Run()
 
     int lastMS = SDL_GetTicks();
 
-
     while (mRunning)
     {
         const int startMS = SDL_GetTicks();
@@ -65,6 +64,8 @@ void one::Game::Run()
 void one::Game::LoadContent(one::Graphics& graphics)
 {
     graphics.LoadSpritesheet("tiles", "assets/tiles.png");
+    graphics.LoadSpritesheet("sprites", "assets/sprites.png");
+
     SetState(new LevelState());
 }
 

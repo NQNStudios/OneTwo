@@ -16,6 +16,7 @@ namespace one
 
             void Draw(Graphics& graphics);
             
+            void SetText(std::string text) { this->text = text; }
         private:
             static std::map<char, int> characterTiles;
 

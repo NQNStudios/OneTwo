@@ -11,6 +11,11 @@ namespace one
             unsigned int x;
             unsigned int y;
         
+            Tile()
+                : x(0), y(0)
+            {
+            }
+
             Tile(unsigned int x, unsigned int y)
                 : x(x), y(y)
             {

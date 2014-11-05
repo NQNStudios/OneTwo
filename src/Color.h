@@ -4,7 +4,9 @@ namespace one
 {
     enum Color
     {
-        ORANGE,
-        BLUE
+        COLOR_BEGIN,
+        ORANGE = COLOR_BEGIN,
+        BLUE,
+        COLOR_END,
     };
 }
