@@ -7,6 +7,7 @@
 #include "Game.h"
 
 one::LevelState::LevelState()
+    : gravityTimer(Game::GRAVITY_INTERVAL)
 {
     // initialize tile indices
     // TODO refactor this somewhere else
@@ -184,6 +185,7 @@ one::LevelState* one::LevelState::FromFile(std::string path)
 
 void one::LevelState::Update(unsigned int deltaMS, one::Input& input)
 {
+    updateGravity(deltaMS);
 
     bool allWillMove = true;
     for (Color color = COLOR_BEGIN; color != COLOR_END; color = (Color)((int)color + 1))
@@ -250,6 +252,42 @@ void one::LevelState::resetLevel()
     for (Color color = COLOR_BEGIN; color != COLOR_END; color = (Color)((int)color + 1))
     {
         players[color].SetPosition(entrances[color].x * Game::TILE_SIZE, entrances[color].y * Game::TILE_SIZE);
+    }
+
+    gravityTimer.Reset();
+}
+
+void one::LevelState::updateGravity(unsigned int deltaMS)
+{
+    gravityTimer.Update(deltaMS);
+
+    if (gravityTimer.IntervalPassed())
+    {
+        std::cout << "A gravity interval passed!" << std::endl;
+        // pull players towards their nearest tiles
+
+        for (Color color = COLOR_BEGIN; color != COLOR_END; color = (Color)((int)color + 1))
+        {
+            Player player = players[color];
+
+            int x = player.GetX();
+            int y = player.GetY();
+
+            // retrieve tile location in PIXEL coordinates
+            Tile tile = player.GetNearestTile();
+            int tileX = tile.x * Game::TILE_SIZE;
+            int tileY = tile.y * Game::TILE_SIZE;
+
+            std::cout << "Player pos: (" << x << ", " << y << ")" << std::endl;
+            std::cout << "Nearest tile: (" << tile.x << ", " << tile.y << ")" << std::endl;
+
+            std::cout << "--------" << std::endl;
+
+            int xMovement = (tileX - x) / abs(tileX - x); // move 1 at a time
+            int yMovement = (tileY - y) / abs(tileY - y);
+
+            player.SetPosition(x + (tileX - x), y + (tileY - y));
+        }
     }
 }
 

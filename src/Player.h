@@ -10,6 +10,7 @@
 #include "Input.h"
 #include "Level.h"
 #include "Rectangle.h"
+#include "Tile.h"
 
 namespace one
 {
@@ -37,6 +38,18 @@ namespace one
             bool IsOnExit(one::Level level);
 
             void SetPosition(int x, int y) { this->x = x; this->y = y; }
+
+            int GetX() { return this->x; }
+            int GetY() { return this->y; }
+
+            // convenience method
+            Tile GetNearestTile() {
+                int tileX = round((float) this->x / (float) Game::TILE_SIZE);
+                int tileY = round((float) this->y / (float) Game::TILE_SIZE);
+
+                return Tile(tileX, tileY);
+            }
+
             void Draw(Graphics& graphics);
         private:
             Color color;

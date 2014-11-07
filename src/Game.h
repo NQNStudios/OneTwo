@@ -16,6 +16,7 @@ namespace one
             void Quit() { mRunning = false; }
 
             static const unsigned int TILE_SIZE = 8;
+            static const unsigned int GRAVITY_INTERVAL = 500;
 
             void SetState(State* state) { mState = state; }
 

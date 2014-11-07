@@ -10,6 +10,7 @@
 #include "Tile.h"
 #include "Player.h"
 #include "Level.h"
+#include "Timer.h"
 
 namespace one
 {
@@ -36,6 +37,9 @@ namespace one
             Label* label;
 
             void resetLevel();
+
+            Timer gravityTimer;
+            void updateGravity(unsigned int deltaMS);
 
             void drawHalls(Color color, Graphics& graphics);
             void drawExit(Color color, Graphics& graphics);
