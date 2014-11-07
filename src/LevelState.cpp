@@ -1,49 +1,15 @@
 #include "LevelState.h"
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include "Game.h"
 
 one::LevelState::LevelState()
 {
-    std::vector<one::Line> lines;
-
-    lines.push_back(one::Line(1, 1, 6, HORIZONTAL));
-    lines.push_back(one::Line(2, 2, 8, HORIZONTAL));
-    lines.push_back(one::Line(5, 5, 15, HORIZONTAL));
-    lines.push_back(one::Line(5, 6, 15, HORIZONTAL));
-    lines.push_back(one::Line(6, 7, 20, HORIZONTAL));
-    lines.push_back(one::Line(7, 8, 20, HORIZONTAL));
-
-    std::string text = "we move as @ne though separate";
-
-    label = new Label(text, lines);
-
-    std::vector<one::Line> orangeHalls;
-
-    orangeHalls.push_back(one::Line(1, 8, 10, HORIZONTAL));
-    orangeHalls.push_back(one::Line(4, 8, 5, VERTICAL));
-
-    level.hallLines[ORANGE].assign(orangeHalls.begin(), orangeHalls.end());
-
-    std::vector<one::Line> blueHalls;
-    
-    blueHalls.push_back(one::Line(1, 14, 10, HORIZONTAL));
-    blueHalls.push_back(one::Line(4, 14, 5, VERTICAL));
-
-    level.hallLines[BLUE].assign(blueHalls.begin(), blueHalls.end());
-
-    one::Tile blueExit(4, 18);
-    one::Tile orangeExit(4, 12);
-
-    level.exits[BLUE] = blueExit;
-    level.exits[ORANGE] = orangeExit;
-
-    Player blue(BLUE, 1 * Game::TILE_SIZE, 14 * Game::TILE_SIZE);
-    Player orange(ORANGE, 1 * Game::TILE_SIZE, 8 * Game::TILE_SIZE);
-
-    players[BLUE] = blue;
-    players[ORANGE] = orange;
+    // initialize tile indices
+    // TODO refactor this somewhere else
 
     hallTiles[ORANGE] = 36;
     hallTiles[BLUE] = 35;
@@ -51,8 +17,174 @@ one::LevelState::LevelState()
     exitTiles[BLUE] = 37;
 }
 
+one::LevelState* one::LevelState::FromFile(std::string path)
+{
+    std::map<std::string, Color> colorStrings;
+    colorStrings["orange"] = ORANGE;
+    colorStrings["blue"] = BLUE;
+
+    // load a LevelState from a file
+
+    LevelState* state = new LevelState(); // empty level
+
+    std::string levelText;
+    std::vector<one::Line> textLines;
+    std::map<Color, std::vector<one::Line> > hallLines;
+    std::map<Color, Tile> entrances;
+    std::map<Color, Tile> exits; 
+
+    std::ifstream filestream;
+    filestream.open(path);
+
+    std::string line;
+    while (getline(filestream, line))
+    {
+        // parse a line of the file
+
+        std::cout << "Parsing line: " << line << std::endl;
+
+        if (line.empty())
+        {
+            std::cout << "Skipping an empty line" << std::endl;
+            continue; // don't parse empty lines
+        }
+
+        if (line[0] == '#')
+        {
+            std::cout << "Skipping a comment line" << std::endl;
+            continue;
+        }
+        
+        std::stringstream sstream(line);
+
+        std::string word;
+
+        sstream >> word; // read the first word
+
+        if (!word.compare("text:"))
+        {
+            std::cout << "Found a text line" << std::endl;
+            levelText = sstream.str(); // read the rest of the line
+            std::cout << "Level text: " << levelText << std::endl;
+        }
+
+        if (!word.compare("word:"))
+        {
+            std::cout << "Found a label word line!" << std::endl;
+
+            unsigned int x;
+            unsigned int y;
+            unsigned int l;
+
+            std::string temp;
+
+            sstream >> temp; // x
+            x = atoi(temp.c_str());
+
+            sstream >> temp; // y
+            y = atoi(temp.c_str());
+
+            sstream >> temp; // l
+            l = atoi(temp.c_str());
+
+            one::Line textLine(x, y, l, HORIZONTAL);
+
+            textLines.push_back(textLine);
+
+            std::cout << "Line: (" << textLine.x << ", " << textLine.y << ", " << textLine.length << ")" << std::endl;
+        }
+
+        if (!word.compare("hall:"))
+        {
+            sstream >> word;
+
+            Color color = colorStrings[word];
+
+            sstream >> word; // x
+            unsigned int x = atoi(word.c_str());
+
+            sstream >> word; // y
+            unsigned int y = atoi(word.c_str());
+
+            sstream >> word; // w
+            unsigned int w = atoi(word.c_str());
+
+            sstream >> word; // h
+            unsigned int h = atoi(word.c_str());
+
+            unsigned int l = w + h; // 0 will not affect this
+            LineType type;
+
+            if (w == 0)
+            {
+                std::cout << "Found a vertical line" << std::endl;
+                type = VERTICAL;
+            }
+            if (h == 0)
+            {
+                std::cout << "Found a horizontal line" << std::endl;
+                type = HORIZONTAL;
+            }
+
+            hallLines[color].push_back(Line(x, y, l, type));
+        }
+
+        if (!word.compare("entrance:"))
+        {
+            sstream >> word; // color
+
+            Color color = colorStrings[word]; // parse color enum
+
+            sstream >> word; // x
+            int x = atoi(word.c_str());
+
+            sstream >> word; // y
+            int y = atoi(word.c_str());
+
+            entrances[color] = Tile(x, y);            
+        }
+
+        if (!word.compare("exit:"))
+        {
+            sstream >> word; // color
+
+            Color color = colorStrings[word];
+
+            sstream >> word; // x
+            int x = atoi(word.c_str());
+
+            sstream >> word; // y
+            int y = atoi(word.c_str());
+
+            exits[color] = Tile(x, y);            
+        }
+
+        if (!word.compare("tutorial:"))
+        {
+            // TODO handle tutorials
+        }
+    }
+
+    // create label
+    state->label = new Label(levelText, textLines);
+    state->level.hallLines = hallLines;
+    state->level.exits = exits;
+    state->entrances = entrances;
+
+    // create players
+    for (Color color = COLOR_BEGIN; color != COLOR_END; color = (Color)((int)color + 1))
+    {
+        state->players[color] = Player(color, entrances[color].x * Game::TILE_SIZE, entrances[color].y * Game::TILE_SIZE);
+    }
+
+    filestream.close();
+
+    return state;
+}
+
 void one::LevelState::Update(unsigned int deltaMS, one::Input& input)
 {
+
     bool allWillMove = true;
     for (Color color = COLOR_BEGIN; color != COLOR_END; color = (Color)((int)color + 1))
     {
@@ -89,6 +221,11 @@ void one::LevelState::Update(unsigned int deltaMS, one::Input& input)
     {
         label->SetText("we move as @ne though separate");
     }
+
+    if (input.IsKeyPressed(SDLK_r))
+    {
+        resetLevel();
+    }
 }
 
 void one::LevelState::Draw(one::Graphics& graphics)
@@ -100,12 +237,19 @@ void one::LevelState::Draw(one::Graphics& graphics)
         drawHalls(color, graphics);
 
         drawExit(color, graphics);
-
     }
 
     for (Color color = COLOR_BEGIN; color != COLOR_END; color = (Color)((int)color + 1))
     {
         players[color].Draw(graphics);
+    }
+}
+
+void one::LevelState::resetLevel()
+{
+    for (Color color = COLOR_BEGIN; color != COLOR_END; color = (Color)((int)color + 1))
+    {
+        players[color].SetPosition(entrances[color].x * Game::TILE_SIZE, entrances[color].y * Game::TILE_SIZE);
     }
 }
 

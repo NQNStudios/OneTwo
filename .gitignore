@@ -30,3 +30,6 @@
 # Generated files
 gen/*
 bin/*
+
+# vim files
+*.swp

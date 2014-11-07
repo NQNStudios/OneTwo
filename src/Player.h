@@ -36,6 +36,7 @@ namespace one
             void Update(unsigned int deltaMS, one::Input& input, one::Level level);
             bool IsOnExit(one::Level level);
 
+            void SetPosition(int x, int y) { this->x = x; this->y = y; }
             void Draw(Graphics& graphics);
         private:
             Color color;

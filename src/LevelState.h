@@ -2,6 +2,7 @@
 
 #include <map>
 #include <vector>
+#include <string>
 
 #include "Color.h"
 #include "State.h"
@@ -19,6 +20,8 @@ namespace one
 
             void Update(const unsigned int deltaMS, Input& input);
             void Draw(Graphics& graphics);
+            
+            static LevelState* FromFile(std::string path);
         private:
             Level level;
 
@@ -31,6 +34,8 @@ namespace one
             std::map<Color, Player> players;
 
             Label* label;
+
+            void resetLevel();
 
             void drawHalls(Color color, Graphics& graphics);
             void drawExit(Color color, Graphics& graphics);

@@ -66,7 +66,7 @@ void one::Game::LoadContent(one::Graphics& graphics)
     graphics.LoadSpritesheet("tiles", "assets/tiles.png");
     graphics.LoadSpritesheet("sprites", "assets/sprites.png");
 
-    SetState(new LevelState());
+    SetState(LevelState::FromFile("assets/levels/01.one"));
 }
 
 void one::Game::Update(int deltaMS, one::Input& input)
