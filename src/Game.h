@@ -17,6 +17,7 @@ namespace one
 
             static const unsigned int TILE_SIZE = 8;
             static const unsigned int GRAVITY_INTERVAL = 500;
+            static const unsigned int LEVEL_FADE_TIME = 750;
 
             void SetState(State* state) { mState = state; }
 

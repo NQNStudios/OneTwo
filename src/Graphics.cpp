@@ -32,8 +32,8 @@ one::Graphics::Graphics()
 
     mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
 
-    SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
     SDL_RenderSetLogicalSize(mRenderer, RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
+    SDL_SetRenderDrawBlendMode(mRenderer, SDL_BLENDMODE_BLEND);
 }
 
 one::Graphics::~Graphics()
@@ -46,6 +46,7 @@ one::Graphics::~Graphics()
 
 void one::Graphics::Clear()
 {
+    SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
     SDL_RenderClear(mRenderer);
 }
 
@@ -83,4 +84,15 @@ void one::Graphics::DrawSprite(std::string sheetKey, unsigned int tileIndex, int
     dest.h = Game::TILE_SIZE;
 
     SDL_RenderCopy(mRenderer, mSpritesheets[sheetKey], &source, &dest);
+}
+
+void one::Graphics::DrawFade(float progress)
+{
+    // black of opacity determined by progress
+
+    int a = progress * 255;
+
+    SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, a);
+
+    SDL_RenderFillRect(mRenderer, NULL);
 }

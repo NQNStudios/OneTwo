@@ -39,7 +39,6 @@ namespace one
             bool IsOnExit(one::Level level);
 
             void SetPosition(int x, int y) {
-                std::cout << "SETTING A PLAYER POSITION TO (" << x << ", " << y << ")" << std::endl;
                 this->x = x; this->y = y;
             }
 

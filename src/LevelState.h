@@ -17,13 +17,18 @@ namespace one
     class LevelState : public State
     {
         public:
-            LevelState();
+            LevelState(Game* game);
 
             void Update(const unsigned int deltaMS, Input& input);
             void Draw(Graphics& graphics);
             
-            static LevelState* FromFile(std::string path);
+            static LevelState* FromFile(Game* game, std::string path);
+            static LevelState* FromLevel(Game* game, int level);
         private:
+            Game* game;
+            int levelNumber;
+            bool fromLevel;
+
             Level level;
 
             std::map<Color, Tile> entrances;
@@ -38,10 +43,16 @@ namespace one
 
             void resetLevel();
 
+            Timer fadeInTimer;
+            Timer fadeOutTimer;
+            void drawFade(Graphics& graphics);
+
             Timer gravityTimer;
             void updateGravity(unsigned int deltaMS);
 
             void drawHalls(Color color, Graphics& graphics);
             void drawExit(Color color, Graphics& graphics);
+
+            void gameOver();
     };
 }

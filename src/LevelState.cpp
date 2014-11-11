@@ -6,8 +6,10 @@
 
 #include "Game.h"
 
-one::LevelState::LevelState()
-    : gravityTimer(Game::GRAVITY_INTERVAL)
+one::LevelState::LevelState(Game* game)
+    : game(game), gravityTimer(Game::GRAVITY_INTERVAL),
+    fadeInTimer(Game::LEVEL_FADE_TIME), fadeOutTimer(Game::LEVEL_FADE_TIME),
+    levelNumber(0), fromLevel(false)
 {
     // initialize tile indices
     // TODO refactor this somewhere else
@@ -20,7 +22,7 @@ one::LevelState::LevelState()
     gravityTimer.Start();
 }
 
-one::LevelState* one::LevelState::FromFile(std::string path)
+one::LevelState* one::LevelState::FromFile(Game* game, std::string path)
 {
     std::map<std::string, Color> colorStrings;
     colorStrings["orange"] = ORANGE;
@@ -28,7 +30,7 @@ one::LevelState* one::LevelState::FromFile(std::string path)
 
     // load a LevelState from a file
 
-    LevelState* state = new LevelState(); // empty level
+    LevelState* state = new LevelState(game); // empty level
 
     std::string levelText;
     std::vector<one::Line> textLines;
@@ -67,7 +69,7 @@ one::LevelState* one::LevelState::FromFile(std::string path)
         if (!word.compare("text:"))
         {
             std::cout << "Found a text line" << std::endl;
-            levelText = sstream.str(); // read the rest of the line
+            getline(sstream, levelText); // read the rest of the line
             std::cout << "Level text: " << levelText << std::endl;
         }
 
@@ -168,11 +170,15 @@ one::LevelState* one::LevelState::FromFile(std::string path)
         }
     }
 
+    std::cout << "Got to this point" << std::endl;
+
     // create label
     state->label = new Label(levelText, textLines);
     state->level.hallLines = hallLines;
     state->level.exits = exits;
     state->entrances = entrances;
+
+    std::cout << "Got to this point" << std::endl;
 
     // create players
     for (Color color = COLOR_BEGIN; color != COLOR_END; color = (Color)((int)color + 1))
@@ -182,11 +188,55 @@ one::LevelState* one::LevelState::FromFile(std::string path)
 
     filestream.close();
 
+    state->fadeInTimer.Start();
+
+    std::cout << "Got to this point" << std::endl;
+
+    return state;
+}
+
+one::LevelState* one::LevelState::FromLevel(Game* game, int level)
+{
+    std::ostringstream pathStream;
+
+    pathStream << "assets/levels/";
+
+    if (level < 10) // 1 digit
+    {
+        pathStream << "0"; // pad with a 0
+    }
+
+    pathStream << level << ".one";
+
+    std::cout << pathStream.str() << std::endl;
+
+    LevelState* state = LevelState::FromFile(game, pathStream.str());
+
+    state->levelNumber = level;
+    state->fromLevel = true;
+
     return state;
 }
 
 void one::LevelState::Update(unsigned int deltaMS, one::Input& input)
 {
+    // update the fade timers
+    fadeInTimer.Update(deltaMS);
+    fadeOutTimer.Update(deltaMS);
+
+    if (fadeOutTimer.IsStarted())
+    {
+        if (fadeOutTimer.IntervalPassed())
+        {
+            fadeOutTimer.Stop();
+
+            game->SetState(LevelState::FromLevel(game, levelNumber + 1));
+        }
+
+        // don't update anything else! The level has been beaten and bad things will happen!
+        return;
+    }
+
     updateGravity(deltaMS);
 
     bool allWillMove = true;
@@ -219,11 +269,10 @@ void one::LevelState::Update(unsigned int deltaMS, one::Input& input)
 
     if (allOnExits)
     {
-        label->SetText("game over! you win!");
-    }
-    else
-    {
-        label->SetText("we move as @ne though separate");
+        if (!fadeOutTimer.IsStarted())
+        {
+            fadeOutTimer.Start();
+        }
     }
 
     if (input.IsKeyPressed(SDLK_r))
@@ -247,6 +296,38 @@ void one::LevelState::Draw(one::Graphics& graphics)
     {
         players[color].Draw(graphics);
     }
+
+    drawFade(graphics);
+}
+
+void one::LevelState::drawFade(Graphics& graphics)
+{
+    if (fadeInTimer.IsStarted())
+    {
+        // is fading in
+        if (fadeInTimer.IntervalPassed())
+        {
+            // done fading
+            fadeInTimer.Stop();
+        }
+        else
+        {
+            graphics.DrawFade(1.0f - fadeInTimer.IntervalProgress());
+        }
+    }
+    else if (fadeOutTimer.IsStarted())
+    {
+        // is fading out
+        if (fadeOutTimer.IntervalPassed())
+        {
+            // done fading
+            fadeOutTimer.Stop();
+        }
+        else
+        {
+            graphics.DrawFade(fadeOutTimer.IntervalProgress());
+        }
+    }
 }
 
 void one::LevelState::resetLevel()
@@ -265,8 +346,6 @@ void one::LevelState::updateGravity(unsigned int deltaMS)
 
     if (gravityTimer.IntervalPassed())
     {
-        std::cout << "-------" << std::endl;
-        std::cout << "A gravity interval passed!" << std::endl;
         // pull players towards their nearest tiles
 
         for (Color color = COLOR_BEGIN; color != COLOR_END; color = (Color)((int)color + 1))
@@ -295,8 +374,6 @@ void one::LevelState::updateGravity(unsigned int deltaMS)
 
             player->SetPosition(x, y);
         }
-
-        std::cout << "--------" << std::endl;
     }
 }
 

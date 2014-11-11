@@ -15,6 +15,8 @@ namespace one
             void Start() { started = true; }
             void Stop() { started = false; }
 
+            bool IsStarted() { return started; }
+
             void Update(unsigned int deltaMS)
             {
                 if (started)
@@ -45,7 +47,6 @@ namespace one
             {
                 int currentIntervalMS = elapsedMS % interval;
 
-                std::cout << "About to divide" << std::endl;
                 return currentIntervalMS / (float) interval;
             }
         private:

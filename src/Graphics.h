@@ -18,6 +18,8 @@ namespace one
 
             void LoadSpritesheet(std::string key, const char* path);
             void DrawSprite(std::string sheetKey, unsigned int tileIndex, int x, int y);
+
+            void DrawFade(float progress);
         private:
             SDL_Window* mWindow;
             SDL_Renderer* mRenderer;
