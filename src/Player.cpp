@@ -1,7 +1,5 @@
 #include "Player.h"
 
-#include <iostream>
-
 namespace
 {
     const int SPEED = 64;
@@ -114,25 +112,21 @@ void one::Player::Update(unsigned int deltaMS, one::Input& input, one::Level lev
     if (input.IsKeyHeld(movementKeys[UP]))
     {
         y -= movement;
-        direction = UP;
     }
 
     else if (input.IsKeyHeld(movementKeys[DOWN]))
     {
         y += movement;
-        direction = DOWN;
     }
 
     else if (input.IsKeyHeld(movementKeys[LEFT]))
     {
         x -= movement;
-        direction = LEFT;
     }
 
     else if (input.IsKeyHeld(movementKeys[RIGHT]))
     {
         x += movement;
-        direction = RIGHT;
     }
 
     else

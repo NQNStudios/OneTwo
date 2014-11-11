@@ -16,6 +16,8 @@ one::LevelState::LevelState()
     hallTiles[BLUE] = 35;
     exitTiles[ORANGE] = 38;
     exitTiles[BLUE] = 37;
+
+    gravityTimer.Start();
 }
 
 one::LevelState* one::LevelState::FromFile(std::string path)
@@ -263,31 +265,38 @@ void one::LevelState::updateGravity(unsigned int deltaMS)
 
     if (gravityTimer.IntervalPassed())
     {
+        std::cout << "-------" << std::endl;
         std::cout << "A gravity interval passed!" << std::endl;
         // pull players towards their nearest tiles
 
         for (Color color = COLOR_BEGIN; color != COLOR_END; color = (Color)((int)color + 1))
         {
-            Player player = players[color];
+            Player* player = &players[color];
 
-            int x = player.GetX();
-            int y = player.GetY();
+            int x = player->GetX();
+            int y = player->GetY();
 
             // retrieve tile location in PIXEL coordinates
-            Tile tile = player.GetNearestTile();
+            Tile tile = player->GetNearestTile();
             int tileX = tile.x * Game::TILE_SIZE;
             int tileY = tile.y * Game::TILE_SIZE;
 
-            std::cout << "Player pos: (" << x << ", " << y << ")" << std::endl;
-            std::cout << "Nearest tile: (" << tile.x << ", " << tile.y << ")" << std::endl;
+            if (x != tileX)
+            {
+                int xMovement = (tileX - x) / abs(tileX - x); // move 1 at a time
+                x += xMovement;
+            }
 
-            std::cout << "--------" << std::endl;
+            if (y != tileY)
+            {
+                int yMovement = (tileY - y) / abs(tileY - y);
+                y += yMovement;
+            }
 
-            int xMovement = (tileX - x) / abs(tileX - x); // move 1 at a time
-            int yMovement = (tileY - y) / abs(tileY - y);
-
-            player.SetPosition(x + (tileX - x), y + (tileY - y));
+            player->SetPosition(x, y);
         }
+
+        std::cout << "--------" << std::endl;
     }
 }
 

@@ -5,7 +5,9 @@ word: 1 1 14
 word: 12 18 15
 
 hall: orange 10 3 0 14
+hall: orange 10 6 5 0
 hall: blue 19 3 0 14
+hall: blue 19 7 5 0
 
 entrance: orange 10 3
 entrance: blue 19 3

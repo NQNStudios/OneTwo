@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <iostream>
 
 #include "SDL.h"
 
@@ -37,7 +38,10 @@ namespace one
             void Update(unsigned int deltaMS, one::Input& input, one::Level level);
             bool IsOnExit(one::Level level);
 
-            void SetPosition(int x, int y) { this->x = x; this->y = y; }
+            void SetPosition(int x, int y) {
+                std::cout << "SETTING A PLAYER POSITION TO (" << x << ", " << y << ")" << std::endl;
+                this->x = x; this->y = y;
+            }
 
             int GetX() { return this->x; }
             int GetY() { return this->y; }
