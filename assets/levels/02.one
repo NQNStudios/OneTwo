@@ -14,6 +14,3 @@ entrance: blue 19 3
 
 exit: orange 10 16
 exit: blue 19 16
-
-tutorial: wasd 3 8
-tutorial: arrows 26 8
